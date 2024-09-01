@@ -14,8 +14,6 @@ struct NewsListScreen: View {
     
     var body: some View {
         
-        NavigationView {
-        
         List(newsArticleListViewModel.newsArticles, id: \.id) { newsArticle in
                 NewsArticleCell(newsArticle: newsArticle)
         }
@@ -29,7 +27,6 @@ struct NewsListScreen: View {
             await newsArticleListViewModel.getNewsBy(sourceId: newsSource.id)
         }
         .navigationTitle(newsSource.name)
-        }
     }
 }
 
