@@ -33,9 +33,9 @@ func calculateAPR(creditScores: [CreditScore]) -> Double {
 
 func getAPR(userId: Int) async throws -> Double {
     
-    if userId % 2 == 0 {
-        throw NetworkError.invalidId
-    }
+//    if userId % 2 == 0 {
+//        throw NetworkError.invalidId
+//    }
     
     guard let equifaxUrl = Constants.Urls.equifax(userId: userId),
           let experianUrl = Constants.Urls.experian(userId: userId) else {
@@ -62,18 +62,46 @@ func getAPR(userId: Int) async throws -> Double {
 
 let ids = [1,2,3,4,5]
 var invalidIds: [Int] = []
-Task {
-    for id in ids {
-        do {
-            try Task.checkCancellation()
-            let apr = try await getAPR(userId: id)
-            print(apr)
-            print(Task.isCancelled)
-        } catch {
-            print(error)
-            invalidIds.append(id)
+//Task {
+//    for id in ids {
+//        do {
+//            try Task.checkCancellation()
+//            let apr = try await getAPR(userId: id)
+//            print(apr)
+//            print(Task.isCancelled)
+//        } catch {
+//            print(error)
+//            invalidIds.append(id)
+//        }
+//    }
+//    
+//    print(invalidIds)
+//}
+
+
+
+//Above for loop process data serially. i.e once one user id is processed then another user id will take place for processing
+func getAPRforAllUsers(ids: [Int]) async throws -> [Int: Double] {
+    
+    var userAPR: [Int: Double] = [:]
+    
+    try await withThrowingTaskGroup(of: (Int, Double).self) { group in
+        for id in ids {
+            group.addTask {
+                return (id, try await getAPR(userId: id))
+            }
+        }
+        
+        for try await (id, apr) in group {
+            userAPR[id] = apr
         }
     }
     
-    print(invalidIds)
+    return userAPR
+}
+
+
+Task {
+    let userAPR = try await getAPRforAllUsers(ids: ids)
+    print(userAPR)
 }
