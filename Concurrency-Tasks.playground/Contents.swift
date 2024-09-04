@@ -104,4 +104,29 @@ func getAPRforAllUsers(ids: [Int]) async throws -> [Int: Double] {
 Task {
     let userAPR = try await getAPRforAllUsers(ids: ids)
     print(userAPR)
+    
+    let invalidIds = userAPR.filter { $0.value.isNaN }
+    print(invalidIds)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
